@@ -19,7 +19,7 @@ export default function LoginPage() {
         <div className="login-container">
             <div className="login-card">
                 <img
-                    src="/logo-altonadock.png"
+                    src={`${import.meta.env.BASE_URL}logo-altonadock.png`}
                     alt="Altonadock"
                     className="login-logo-img"
                 />

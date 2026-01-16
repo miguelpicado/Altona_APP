@@ -6,7 +6,7 @@ export default function Header() {
     return (
         <header className="header">
             <img
-                src="/logo-altonadock.png"
+                src={`${import.meta.env.BASE_URL}logo-altonadock.png`}
                 alt="Altonadock"
                 className="header-logo"
             />
