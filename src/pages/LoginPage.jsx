@@ -1,7 +1,7 @@
 import { useAuth } from '../context/AuthContext';
 
 export default function LoginPage() {
-    const { login, loginAsDemo } = useAuth();
+    const { login } = useAuth();
 
     const handleLogin = async () => {
         try {
@@ -9,10 +9,6 @@ export default function LoginPage() {
         } catch (error) {
             console.error('Login failed:', error);
         }
-    };
-
-    const handleDemoLogin = () => {
-        loginAsDemo();
     };
 
     return (
@@ -38,13 +34,7 @@ export default function LoginPage() {
                     Iniciar sesión con Google
                 </button>
 
-                <div style={{ margin: '1rem 0', color: 'var(--text-muted)', fontSize: '0.875rem' }}>
-                    — o —
-                </div>
 
-                <button className="btn btn-secondary btn-block" onClick={handleDemoLogin}>
-                    🧪 Entrar sin login (modo prueba)
-                </button>
 
                 <p className="text-muted mt-lg" style={{ fontSize: '0.75rem' }}>
                     Tus datos se sincronizan automáticamente con tu cuenta de Google
