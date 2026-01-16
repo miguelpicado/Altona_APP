@@ -8,11 +8,12 @@ import AddSaleModal from './components/AddSaleModal';
 import InstallPrompt from './components/InstallPrompt';
 import ResumenTab from './pages/ResumenTab';
 import UltimaVentaTab from './pages/UltimaVentaTab';
+import RegistroDiarioTab from './pages/RegistroDiarioTab';
 import LoginPage from './pages/LoginPage';
 
 function AppContent() {
     const { isAuthenticated, loading: authLoading } = useAuth();
-    const { sales, lastSale, loading: salesLoading, addSale } = useSales();
+    const { sales, lastSale, todaysSales, dailyTotal, loading: salesLoading, addSale, deleteSale, deleteMultipleSales } = useSales();
     const [activeTab, setActiveTab] = useState('resumen');
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -40,7 +41,7 @@ function AppContent() {
 
     return (
         <div className="app-container">
-            <Header />
+            <Header sales={sales} />
 
             <main className="main-content">
                 {salesLoading ? (
@@ -53,7 +54,10 @@ function AppContent() {
                             <ResumenTab sales={sales} lastSale={lastSale} />
                         )}
                         {activeTab === 'venta' && (
-                            <UltimaVentaTab lastSale={lastSale} />
+                            <UltimaVentaTab lastSale={sales.length > 0 ? null : null} dailyTotal={dailyTotal} todaysSales={todaysSales} />
+                        )}
+                        {activeTab === 'registro' && (
+                            <RegistroDiarioTab sales={sales} deleteSale={deleteSale} deleteMultipleSales={deleteMultipleSales} />
                         )}
                     </>
                 )}

@@ -1,7 +1,8 @@
 export default function TabBar({ activeTab, onTabChange }) {
     const tabs = [
         { id: 'resumen', label: 'Resumen', icon: '📊' },
-        { id: 'venta', label: 'Venta Confirmada', icon: '✅' }
+        { id: 'venta', label: 'Venta', icon: '✅' },
+        { id: 'registro', label: 'Diario', icon: '📅' }
     ];
 
     return (

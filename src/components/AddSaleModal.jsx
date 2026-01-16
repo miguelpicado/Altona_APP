@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 const EMPLOYEES = ['Ingrid', 'Marta'];
 
-export default function AddSaleModal({ isOpen, onClose, onSubmit }) {
+export default function AddSaleModal({ isOpen, onClose, onSubmit, existingSales }) {
     const [formData, setFormData] = useState({
         fecha: new Date().toISOString().split('T')[0],
         empleada: EMPLOYEES[0],
@@ -50,6 +50,27 @@ export default function AddSaleModal({ isOpen, onClose, onSubmit }) {
                 venta: parseFloat(formData.venta),
                 horasTrabajadas: parseFloat(formData.horasTrabajadas)
             };
+
+            // Check for existing record
+            // Convert existing sales dates to compare locally
+            const existingRecord = existingSales?.find(s => {
+                const sDate = new Date(s.fecha).toISOString().split('T')[0];
+                return sDate === formData.fecha && s.empleada === formData.empleada;
+            });
+
+            if (existingRecord) {
+                const confirmOverwrite = window.confirm(
+                    `⚠️ YA EXISTE UN REGISTRO PARA ${formData.empleada.toUpperCase()} EN ESTA FECHA (${formData.fecha}).\n\n` +
+                    `Datos existentes: ${existingRecord.venta}€\n` +
+                    `Nuevos datos: ${formData.venta}€\n\n` +
+                    `¿Deseas SOBREESCRIBIR los datos antiguos?`
+                );
+
+                if (!confirmOverwrite) {
+                    setLoading(false);
+                    return;
+                }
+            }
 
             await onSubmit(saleInput);
 

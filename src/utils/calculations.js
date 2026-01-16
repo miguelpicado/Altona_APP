@@ -4,6 +4,85 @@
  */
 
 /**
+ * Filter sales to ensure only one record per employee exists (deduplication)
+ * PRIORITIZES the first record found (assuming desc sort) or effectively arbitrary if unsorted.
+ * @param {Array} salesArray - Array of sales
+ * @returns {Array} Deduplicated sales
+ */
+export function unifyDailySales(salesArray) {
+    if (!salesArray || salesArray.length === 0) return [];
+
+    const uniqueMap = {};
+    salesArray.forEach(sale => {
+        // Only keep the first one encountered for each employee
+        if (!uniqueMap[sale.empleada]) {
+            uniqueMap[sale.empleada] = sale;
+        }
+    });
+
+    return Object.values(uniqueMap);
+}
+
+/**
+ * Aggregate multiple sales records into a single summary with calculated ratios
+ * @param {Array} salesArray - Array of sale records
+ * @returns {Object|null} Aggregated sale object or null
+ */
+export function aggregateSales(salesArray) {
+    if (!salesArray || salesArray.length === 0) {
+        return null;
+    }
+
+    const initialStats = {
+        clientes: 0,
+        operaciones: 0,
+        unidades: 0,
+        venta: 0,
+        horasTrabajadas: 0,
+    };
+
+    const totals = salesArray.reduce((acc, sale) => {
+        return {
+            clientes: acc.clientes + (sale.clientes || 0),
+            operaciones: acc.operaciones + (sale.operaciones || 0),
+            unidades: acc.unidades + (sale.unidades || 0),
+            venta: acc.venta + (sale.venta || 0),
+            horasTrabajadas: acc.horasTrabajadas + (sale.horasTrabajadas || 0),
+        };
+    }, initialStats);
+
+    // If no meaningful data, return zeroes to avoid NaN
+    if (totals.clientes === 0 && totals.operaciones === 0) {
+        return {
+            ...totals,
+            conversion: 0,
+            apo: 0,
+            pmv: 0,
+            ticketMedio: 0,
+            productividad: 0
+        };
+    }
+
+    try {
+        const ratios = calculateRatios(totals);
+        return {
+            ...totals,
+            ...ratios
+        };
+    } catch (e) {
+        // Fallback for edge cases
+        return {
+            ...totals,
+            conversion: 0,
+            apo: 0,
+            pmv: 0,
+            ticketMedio: 0,
+            productividad: 0
+        };
+    }
+}
+
+/**
  * Calculate all sales ratios from input data
  * @param {Object} input - Input data from user
  * @param {number} input.clientes - Number of visitors

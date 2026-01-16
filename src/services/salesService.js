@@ -165,8 +165,10 @@ export async function updateSale(id, data) {
  */
 export async function deleteSale(id) {
     try {
+        console.log('salesService: deleteSale called for ID:', id);
         const docRef = doc(db, COLLECTION_NAME, id);
         await deleteDoc(docRef);
+        console.log('salesService: deleteDoc success');
     } catch (error) {
         console.error('Error deleting sale:', error);
         throw error;

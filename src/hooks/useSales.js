@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { getSales, getLastSale, addSale as addSaleService } from '../services/salesService';
-import { calculateRatios } from '../utils/calculations';
+import { getSales, getLastSale, addSale as addSaleService, deleteSale as deleteSaleService } from '../services/salesService';
+import { calculateRatios, aggregateSales, unifyDailySales } from '../utils/calculations';
 import { isFirebaseConfigured } from '../config/firebase.config';
 
 // LocalStorage key for demo data
@@ -32,10 +32,43 @@ function saveDemoSales(sales) {
 
 export function useSales() {
     const [sales, setSales] = useState([]);
-    const [lastSale, setLastSale] = useState(null);
+    const [todaysSales, setTodaysSales] = useState([]); // Array of today's records
+    const [dailyTotal, setDailyTotal] = useState(null); // Aggregated total for today
+    const [lastSale, setLastSale] = useState(null); // Keep for compatibility (most recent single record)
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isDemo, setIsDemo] = useState(false);
+
+    // Blacklist to store IDs that have been deleted in this session.
+    // This prevents "zombie" records from reappearing if the server returns stale data due to latency.
+    const deletedIdsRef = useState(() => new Set())[0];
+
+    const processSalesData = useCallback((allSales) => {
+        // Filter out any locally deleted IDs
+        // We use the Set to ensure O(1) lookup
+        const activeSales = allSales.filter(s => !deletedIdsRef.has(s.id));
+
+        const now = new Date();
+        const todayStr = now.toDateString();
+
+        // 1. Identify today's sales
+        const todayRecords = activeSales.filter(s => {
+            const d = new Date(s.fecha);
+            return d.toDateString() === todayStr;
+        });
+
+        // 2. Aggregate today's sales
+        const uniqueToday = unifyDailySales(todayRecords);
+        const todayAggregated = aggregateSales(uniqueToday);
+
+        // 3. Determine "lastSale"
+        const mostRecent = activeSales.length > 0 ? activeSales[0] : null;
+
+        setSales(activeSales);
+        setTodaysSales(todayRecords);
+        setDailyTotal(todayAggregated);
+        setLastSale(mostRecent);
+    }, [deletedIdsRef]);
 
     const fetchSales = useCallback(async () => {
         try {
@@ -47,30 +80,27 @@ export function useSales() {
             if (demoUser || !isFirebaseConfigured) {
                 setIsDemo(true);
                 const demoSales = getDemoSales();
-                setSales(demoSales);
-                setLastSale(demoSales.length > 0 ? demoSales[0] : null);
+                processSalesData(demoSales);
                 setLoading(false);
                 return;
             }
 
             // Try Firebase (only if configured)
-            const [salesData, lastSaleData] = await Promise.all([
-                getSales(30),
-                getLastSale()
-            ]);
-            setSales(salesData);
-            setLastSale(lastSaleData);
+            // Fetch more records to ensure we catch today's and context
+            const salesData = await getSales(50);
+            console.log(`useSales: Fetched ${salesData.length} records`);
+            processSalesData(salesData);
+
         } catch (err) {
             // If Firebase fails, fall back to demo mode
             console.warn('Firebase not available, using demo mode:', err.message);
             setIsDemo(true);
             const demoSales = getDemoSales();
-            setSales(demoSales);
-            setLastSale(demoSales.length > 0 ? demoSales[0] : null);
+            processSalesData(demoSales);
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [processSalesData]);
 
     useEffect(() => {
         fetchSales();
@@ -97,8 +127,7 @@ export function useSales() {
                 const currentSales = getDemoSales();
                 const newSales = [saleData, ...currentSales];
                 saveDemoSales(newSales);
-                setSales(newSales);
-                setLastSale(saleData);
+                processSalesData(newSales);
             } else {
                 // Save to Firestore
                 await addSaleService(saleData);
@@ -112,6 +141,51 @@ export function useSales() {
         }
     };
 
+    const deleteSale = async (id) => {
+        try {
+            await deleteMultipleSales([id]);
+        } catch (err) {
+            setError(err.message);
+            throw err;
+        }
+    };
+
+    const deleteMultipleSales = async (ids) => {
+        try {
+            setError(null);
+            console.log('useSales: deleteMultipleSales called for IDs:', ids);
+
+            if (isDemo) {
+                const currentSales = getDemoSales();
+                const newSales = currentSales.filter(s => !ids.includes(s.id));
+                saveDemoSales(newSales);
+                processSalesData(newSales);
+            } else {
+                // Add to blacklist immediately
+                ids.forEach(id => deletedIdsRef.add(id));
+                console.log('useSales: Added IDs to blacklist:', ids);
+
+                // Optimistic update FIRST to clear UI immediately
+                setSales(prev => prev.filter(s => !ids.includes(s.id)));
+                setTodaysSales(prev => prev.filter(s => !ids.includes(s.id)));
+
+                // Execute deletions
+                await Promise.all(ids.map(id => deleteSaleService(id)));
+                console.log('useSales: Batch delete success');
+
+                // Fetch fresh data with a delay to allow Firestore consistency
+                setTimeout(() => {
+                    console.log('useSales: Refreshing after batch delete (2000ms delay)...');
+                    fetchSales();
+                }, 2000);
+            }
+        } catch (err) {
+            console.error('useSales: Error in deleteMultipleSales:', err);
+            setError(err.message);
+            throw err;
+        }
+    };
+
     const refresh = () => {
         fetchSales();
     };
@@ -119,9 +193,13 @@ export function useSales() {
     return {
         sales,
         lastSale,
+        todaysSales,
+        dailyTotal,
         loading,
         error,
         addSale,
+        deleteSale,
+        deleteMultipleSales,
         refresh,
         isDemo
     };

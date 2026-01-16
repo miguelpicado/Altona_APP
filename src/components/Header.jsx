@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { exportSalesToCSV } from '../utils/exportUtils';
 
-export default function Header() {
+export default function Header({ sales }) {
     const { user, logout } = useAuth();
     const [showLogout, setShowLogout] = useState(false);
 
@@ -47,7 +48,26 @@ export default function Header() {
 
                     {showLogout && (
                         <div className="logout-menu">
-                            <button onClick={handleLogout} className="logout-btn">
+                            <button
+                                onClick={() => {
+                                    exportSalesToCSV(sales);
+                                    setShowLogout(false);
+                                }}
+                                className="logout-btn"
+                            >
+                                📊 Exportar CSV
+                            </button>
+                            <button
+                                onClick={() => {
+                                    alert("Funcionalidad de importar próximamente");
+                                    setShowLogout(false);
+                                }}
+                                className="logout-btn"
+                            >
+                                📥 Importar CSV
+                            </button>
+                            <div className="menu-divider"></div>
+                            <button onClick={handleLogout} className="logout-btn text-danger">
                                 🚪 Cerrar sesión
                             </button>
                         </div>

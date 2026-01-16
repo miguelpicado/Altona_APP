@@ -1378,3 +1378,311 @@ body::before {
     flex: 1;
   }
 }
+
+/* ================================
+   Split Header (Two Employees)
+   ================================ */
+.split-header {
+  display: flex;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+}
+
+.employee-card {
+  flex: 1;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-md);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.employee-card:hover {
+  background: var(--bg-glass);
+  border-color: var(--text-muted);
+}
+
+.employee-card.active {
+  border-color: var(--accent-primary);
+  background: rgba(196, 165, 116, 0.05);
+  box-shadow: 0 0 15px rgba(196, 165, 116, 0.1);
+}
+
+.employee-card.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--accent-gradient);
+}
+
+.employee-name {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-xs);
+  font-weight: 500;
+}
+
+.employee-card.active .employee-name {
+  color: var(--accent-primary);
+}
+
+.employee-total {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.employee-status {
+  font-size: 0.75rem;
+  color: var(--success);
+  margin-top: var(--spacing-xs);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.empty-selection-state {
+  text-align: center;
+  padding: var(--spacing-xl);
+  border: 1px dashed var(--border-color);
+  border-radius: var(--radius-lg);
+  color: var(--text-muted);
+  background: rgba(0, 0, 0, 0.1);
+}
+
+/* ================================
+   Registro Diario (Visual Cards)
+   ================================ */
+.registro-diario {
+  width: 100%;
+}
+
+.daily-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-md);
+}
+
+@media (min-width: 600px) {
+  .daily-cards-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 900px) {
+  .daily-cards-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.daily-card-visual {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-md);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 120px;
+  position: relative;
+  overflow: hidden;
+}
+
+.daily-card-visual:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent-primary);
+  box-shadow: var(--shadow-md);
+}
+
+.daily-card-visual::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: var(--bg-tertiary);
+}
+
+.daily-card-visual:hover::before {
+  background: var(--accent-gradient);
+}
+
+.daily-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--spacing-sm);
+}
+
+.daily-card-date {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-transform: capitalize;
+}
+
+.daily-badges-mini {
+  display: flex;
+  gap: 4px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.dot-ingrid {
+  background: var(--accent-primary);
+  box-shadow: 0 0 5px rgba(196, 165, 116, 0.5);
+}
+
+.dot-marta {
+  background: var(--accent-tertiary);
+  box-shadow: 0 0 5px rgba(93, 138, 168, 0.5);
+}
+
+.daily-card-amount {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.daily-card-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.text-xs {
+  font-size: 0.75rem;
+}
+
+/* Modal tweaks specific to Daily Detail */
+.daily-split-details {
+  display: flex;
+  gap: var(--spacing-md);
+}
+
+.daily-emp-detail {
+  flex: 1;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-sm);
+}
+
+.daily-emp-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 4px;
+  margin-bottom: 4px;
+}
+
+.daily-emp-name {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.daily-emp-status {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.daily-emp-stats {
+  margin-top: var(--spacing-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 10px;
+  border-radius: var(--radius-md);
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+  border-bottom: 1px dashed var(--border-color);
+  padding-bottom: 4px;
+}
+
+.stat-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.stat-row span:first-child {
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+
+/* User Menu (Dropdown) */
+.logout-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  min-width: 180px;
+  z-index: 100;
+  padding: 4px;
+}
+
+.logout-btn {
+  background: transparent;
+  border: none;
+  padding: 10px 12px;
+  text-align: left;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+  /* Prevent wrapping */
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.logout-btn:hover {
+  background: var(--bg-hover);
+}
+
+.logout-btn.text-danger {
+  color: var(--danger);
+}
+
+.logout-btn.text-danger:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.menu-divider {
+  height: 1px;
+  background: var(--border-color);
+  margin: 4px 0;
+}
