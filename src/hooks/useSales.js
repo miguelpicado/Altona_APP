@@ -86,8 +86,8 @@ export function useSales() {
             }
 
             // Try Firebase (only if configured)
-            // Fetch more records to ensure we catch today's and context
-            const salesData = await getSales(50);
+            // Fetch more records to ensure we catch today's and context (increased to catch duplicates)
+            const salesData = await getSales(150);
             console.log(`useSales: Fetched ${salesData.length} records`);
             processSalesData(salesData);
 

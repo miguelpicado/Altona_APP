@@ -18,7 +18,8 @@ import {
     formatPercentage,
     formatNumber,
     getSummaryStats,
-    calculateTrend
+    calculateTrend,
+    unifyHistorySales
 } from '../utils/calculations';
 
 // Register Chart.js components
@@ -106,14 +107,19 @@ export default function ResumenTab({ sales, lastSale }) {
         return Math.round((currentMonthTotal / monthlyGoal.amount) * 100);
     }, [currentMonthTotal, monthlyGoal.amount]);
 
+    // Deduplicate filtered sales for stats and charts
+    const cleanSales = useMemo(() => {
+        return unifyHistorySales(filteredSales);
+    }, [filteredSales]);
+
     // Calculate summary statistics
     const stats = useMemo(() => {
-        if (!filteredSales || filteredSales.length === 0) return null;
+        if (!cleanSales || cleanSales.length === 0) return null;
 
-        const ventaStats = getSummaryStats(filteredSales, 'venta');
-        const conversionStats = getSummaryStats(filteredSales, 'conversion');
-        const ticketStats = getSummaryStats(filteredSales, 'ticketMedio');
-        const productividadStats = getSummaryStats(filteredSales, 'productividad');
+        const ventaStats = getSummaryStats(cleanSales, 'venta');
+        const conversionStats = getSummaryStats(cleanSales, 'conversion');
+        const ticketStats = getSummaryStats(cleanSales, 'ticketMedio');
+        const productividadStats = getSummaryStats(cleanSales, 'productividad');
 
         return {
             venta: ventaStats,
@@ -121,29 +127,55 @@ export default function ResumenTab({ sales, lastSale }) {
             ticketMedio: ticketStats,
             productividad: productividadStats,
             totalVentas: ventaStats.total,
-            totalOperaciones: filteredSales.reduce((sum, s) => sum + s.operaciones, 0),
-            totalClientes: filteredSales.reduce((sum, s) => sum + s.clientes, 0),
-            totalUnidades: filteredSales.reduce((sum, s) => sum + s.unidades, 0),
-            diasRegistrados: filteredSales.length
+            totalOperaciones: cleanSales.reduce((sum, s) => sum + s.operaciones, 0),
+            totalClientes: cleanSales.reduce((sum, s) => sum + s.clientes, 0),
+            totalUnidades: cleanSales.reduce((sum, s) => sum + s.unidades, 0),
+            diasRegistrados: new Set(cleanSales.map(s => new Date(s.fecha).toDateString())).size
         };
-    }, [filteredSales]);
+    }, [cleanSales]);
 
     // Prepare chart data
     const chartData = useMemo(() => {
-        if (!filteredSales || filteredSales.length === 0) return null;
+        if (!cleanSales || cleanSales.length === 0) return null;
 
-        const sortedSales = [...filteredSales].reverse();
+        const sortedSales = [...cleanSales].reverse();
         const labels = sortedSales.map(sale => {
             const date = new Date(sale.fecha);
             return `${date.getDate()}/${date.getMonth() + 1}`;
         });
 
+        // For charts, we might want to aggregate by day if both employees work same day
+        // But simply showing the points is okay for now. 
+        // Better: Group by date for the line charts.
+
+        // Group by Date for Line Charts
+        const dailyData = {};
+        sortedSales.forEach(s => {
+            const d = new Date(s.fecha).toDateString();
+            if (!dailyData[d]) dailyData[d] = {
+                venta: 0, conversion: 0, count: 0, date: new Date(s.fecha)
+            };
+            dailyData[d].venta += s.venta;
+            dailyData[d].conversion += s.conversion; // simplified avg later
+            dailyData[d].count += 1;
+        });
+
+        const dates = Object.keys(dailyData);
+        const dailyLabels = dates.map(d => {
+            const date = dailyData[d].date;
+            return `${date.getDate()}/${date.getMonth() + 1}`;
+        });
+
+        const dailyVentas = dates.map(d => dailyData[d].venta);
+        // Average conversion for the day
+        const dailyConversion = dates.map(d => dailyData[d].conversion / dailyData[d].count);
+
         return {
             ventas: {
-                labels,
+                labels: dailyLabels,
                 datasets: [{
                     label: 'Ventas (€)',
-                    data: sortedSales.map(s => s.venta),
+                    data: dailyVentas,
                     borderColor: '#c4a574',
                     backgroundColor: 'rgba(196, 165, 116, 0.15)',
                     fill: true,
@@ -151,10 +183,10 @@ export default function ResumenTab({ sales, lastSale }) {
                 }]
             },
             conversion: {
-                labels,
+                labels: dailyLabels,
                 datasets: [{
                     label: 'Conversión (%)',
-                    data: sortedSales.map(s => s.conversion),
+                    data: dailyConversion,
                     borderColor: '#8fa67a',
                     backgroundColor: 'rgba(143, 166, 122, 0.15)',
                     fill: true,
@@ -166,8 +198,8 @@ export default function ResumenTab({ sales, lastSale }) {
                 datasets: [{
                     label: 'Ventas (€)',
                     data: [
-                        filteredSales.filter(s => s.empleada === 'Ingrid').reduce((sum, s) => sum + s.venta, 0),
-                        filteredSales.filter(s => s.empleada === 'Marta').reduce((sum, s) => sum + s.venta, 0)
+                        cleanSales.filter(s => s.empleada === 'Ingrid').reduce((sum, s) => sum + s.venta, 0),
+                        cleanSales.filter(s => s.empleada === 'Marta').reduce((sum, s) => sum + s.venta, 0)
                     ],
                     backgroundColor: [
                         'rgba(196, 165, 116, 0.8)',
@@ -181,7 +213,7 @@ export default function ResumenTab({ sales, lastSale }) {
                 }]
             }
         };
-    }, [filteredSales]);
+    }, [cleanSales]);
 
     const chartOptions = {
         responsive: true,

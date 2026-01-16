@@ -21,6 +21,29 @@ export function unifyDailySales(salesArray) {
     });
 
     return Object.values(uniqueMap);
+    return Object.values(uniqueMap);
+}
+
+/**
+ * Filter sales to ensure only one record per employee PER DAY exists (history deduplication)
+ * @param {Array} salesArray - Array of sales
+ * @returns {Array} Deduplicated sales
+ */
+export function unifyHistorySales(salesArray) {
+    if (!salesArray || salesArray.length === 0) return [];
+
+    const uniqueMap = {};
+    salesArray.forEach(sale => {
+        const dateStr = new Date(sale.fecha).toDateString();
+        const key = `${dateStr}_${sale.empleada}`;
+
+        // Only keep the first one encountered for each employee/date combo
+        if (!uniqueMap[key]) {
+            uniqueMap[key] = sale;
+        }
+    });
+
+    return Object.values(uniqueMap);
 }
 
 /**

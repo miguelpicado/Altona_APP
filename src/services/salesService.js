@@ -50,8 +50,8 @@ export async function getSales(limitCount = 30) {
 
         const snapshot = await getDocs(q);
         return snapshot.docs.map(doc => ({
-            id: doc.id,
             ...doc.data(),
+            id: doc.id,
             fecha: doc.data().fecha.toDate()
         }));
     } catch (error) {
@@ -77,8 +77,8 @@ export async function getLastSale() {
 
         const doc = snapshot.docs[0];
         return {
-            id: doc.id,
             ...doc.data(),
+            id: doc.id,
             fecha: doc.data().fecha.toDate()
         };
     } catch (error) {
@@ -104,8 +104,8 @@ export async function getSalesByDateRange(fromDate, toDate) {
 
         const snapshot = await getDocs(q);
         return snapshot.docs.map(doc => ({
-            id: doc.id,
             ...doc.data(),
+            id: doc.id,
             fecha: doc.data().fecha.toDate()
         }));
     } catch (error) {
@@ -131,8 +131,8 @@ export async function getSalesByEmployee(empleada, limitCount = 30) {
 
         const snapshot = await getDocs(q);
         return snapshot.docs.map(doc => ({
-            id: doc.id,
             ...doc.data(),
+            id: doc.id,
             fecha: doc.data().fecha.toDate()
         }));
     } catch (error) {
