@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
-  base: '/Altona_APP/',
+  base: '/altonadock/',
   plugins: [
     react(),
     VitePWA({
@@ -17,8 +17,8 @@ export default defineConfig({
         background_color: '#0d1015',
         display: 'standalone',
         orientation: 'any',
-        start_url: '/Altona_APP/',
-        scope: '/Altona_APP/',
+        start_url: '/altonadock/',
+        scope: '/altonadock/',
         icons: [
           {
             src: 'logo-altonadock.png',
