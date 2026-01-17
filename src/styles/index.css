@@ -1740,7 +1740,7 @@ body::before {
   position: absolute;
   bottom: 100%;
   right: 0;
-  margin-bottom: var(--spacing-md);
+  margin-bottom: 70px;
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);

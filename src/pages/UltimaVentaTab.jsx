@@ -2,22 +2,40 @@ import { useState, useMemo } from 'react';
 import StatCard from '../components/StatCard';
 import { formatCurrency, formatPercentage, formatNumber } from '../utils/calculations';
 
+// Default empty data to avoid undefined errors
+const emptyData = {
+    operaciones: 0,
+    unidades: 0,
+    ventaBruta: 0,
+    abonos: 0,
+    venta: 0,
+    clientes: 0,
+    horasTrabajadas: 0,
+    conversion: 0,
+    apo: 0,
+    pmv: 0,
+    ticketMedio: 0,
+    productividad: 0,
+    hasClose: false
+};
+
 export default function VentaTab({ dailyTotal, todaysSales, aggregatedData }) {
     const [selectedEmployee, setSelectedEmployee] = useState('ALL'); // 'ALL', 'Ingrid', or 'Marta'
 
     // Get individual data from aggregatedData (pre-calculated in App.jsx)
-    const ingridData = aggregatedData?.ingrid;
-    const martaData = aggregatedData?.marta;
+    const ingridData = aggregatedData?.ingrid || emptyData;
+    const martaData = aggregatedData?.marta || emptyData;
 
     // Calculate data to display based on selection
     const displayData = useMemo(() => {
         if (selectedEmployee === 'Ingrid') return ingridData;
         if (selectedEmployee === 'Marta') return martaData;
-        return dailyTotal || aggregatedData?.total;
+        return dailyTotal || aggregatedData?.total || emptyData;
     }, [selectedEmployee, ingridData, martaData, dailyTotal, aggregatedData]);
 
     // Handle empty state (no sales at all today)
-    if (!dailyTotal && (!todaysSales || todaysSales.length === 0)) {
+    const hasNoData = (!aggregatedData?.total?.operaciones && !dailyTotal?.operaciones) && (!todaysSales || todaysSales.length === 0);
+    if (hasNoData) {
         return (
             <div className="empty-state">
                 <div className="empty-state-icon">📋</div>
