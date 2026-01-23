@@ -1812,3 +1812,56 @@ body::before {
     right: var(--spacing-xl);
   }
 }
+
+/* ================================
+   Large Screen / Tablet Optimizations
+   ================================ */
+
+.charts-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+@media (min-width: 1200px) {
+  /* Charts in a grid */
+  .charts-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-md);
+  }
+  
+  /* Make chart containers slightly more compact if needed */
+  .chart-container {
+    margin-bottom: 0; /* Remove bottom margin as grid handles gap */
+    padding: var(--spacing-md);
+  }
+
+  .chart-wrapper {
+      height: 200px; /* Slightly shorter charts to save vertical space */
+  }
+
+  /* Denser daily cards grid for huge screens */
+  .daily-cards-grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+  
+  /* Stats grid even denser */
+  .stats-grid {
+      grid-template-columns: repeat(4, 1fr); /* Ensure 4 cols */
+  }
+
+  /* Tighter padding in main content to avoid scroll if possible */
+  .main-content {
+      padding: var(--spacing-md);
+  }
+  
+  /* Optimize modal spacing for landscape tablet */
+  .modal-body {
+      padding: var(--spacing-md);
+  }
+  
+  .form-group {
+      margin-bottom: var(--spacing-md);
+  }
+}

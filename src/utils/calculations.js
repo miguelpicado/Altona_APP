@@ -132,6 +132,11 @@ export function aggregateDailyByEmployee(salesArray, empleada) {
     const unidades = unitarias.reduce((sum, s) => sum + (s.articulos || 0), 0);
     const ventaBruta = unitarias.reduce((sum, s) => sum + (s.venta || 0), 0);
     const abonos = abonosFromSeparateRecords;
+    const abonosCount = abonosRecords.length;
+
+    // Calculate CRM stats
+    const ticketsCRM = unitarias.filter(s => s.crmType === 'existing' || s.crmType === 'new').length;
+    const altasCRM = unitarias.filter(s => s.crmType === 'new').length;
 
     // Add adjustments
     const ventaAjuste = ajustes.reduce((sum, s) => sum + (s.ventaAjuste || 0), 0);
@@ -146,6 +151,9 @@ export function aggregateDailyByEmployee(salesArray, empleada) {
         unidades,
         ventaBruta,
         abonos: abonos + abonoAjuste,
+        abonosCount,
+        ticketsCRM,
+        altasCRM,
         venta: ventaFinal,
         clientes,
         horasTrabajadas,
@@ -189,6 +197,9 @@ export function aggregateDailyTotal(salesArray) {
         unidades: ingrid.unidades + marta.unidades,
         ventaBruta: ingrid.ventaBruta + marta.ventaBruta,
         abonos: ingrid.abonos + marta.abonos,
+        abonosCount: (ingrid.abonosCount || 0) + (marta.abonosCount || 0),
+        ticketsCRM: (ingrid.ticketsCRM || 0) + (marta.ticketsCRM || 0),
+        altasCRM: (ingrid.altasCRM || 0) + (marta.altasCRM || 0),
         venta: ingrid.venta + marta.venta,
         clientes: ingrid.clientes + marta.clientes,
         horasTrabajadas: ingrid.horasTrabajadas + marta.horasTrabajadas,

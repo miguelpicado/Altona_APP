@@ -47,7 +47,8 @@ export default function AddUnitSaleModal({ isOpen, onClose, onSubmitSale, onSubm
                     articulos: parseInt(formData.articulos, 10),
                     venta: parseFloat(formData.venta),
                     fecha: formData.fecha,
-                    hora: formData.hora
+                    hora: formData.hora,
+                    crmType: formData.crmType || 'none'
                 });
             } else {
                 // Validate refund fields
@@ -172,6 +173,37 @@ export default function AddUnitSaleModal({ isOpen, onClose, onSubmitSale, onSubm
                                         step="0.01"
                                         required
                                     />
+                                </div>
+
+                                {/* CRM Selector */}
+                                <div className="card mb-md" style={{ background: 'var(--bg-secondary)', padding: '0.75rem' }}>
+                                    <label className="form-label mb-sm" style={{ display: 'block' }}>CRM / Fidelización</label>
+                                    <div className="flex gap-sm flex-wrap">
+                                        <button
+                                            type="button"
+                                            className={`toggle-btn sm ${!formData.crmType || formData.crmType === 'none' ? 'active' : ''}`}
+                                            onClick={() => handleChange({ target: { name: 'crmType', value: 'none' } })}
+                                            style={{ flex: 1, fontSize: '0.8rem' }}
+                                        >
+                                            ❌ Sin CRM
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className={`toggle-btn sm ${formData.crmType === 'existing' ? 'active' : ''}`}
+                                            onClick={() => handleChange({ target: { name: 'crmType', value: 'existing' } })}
+                                            style={{ flex: 1, fontSize: '0.8rem' }}
+                                        >
+                                            👤 Cliente CRM
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className={`toggle-btn sm ${formData.crmType === 'new' ? 'active' : ''}`}
+                                            onClick={() => handleChange({ target: { name: 'crmType', value: 'new' } })}
+                                            style={{ flex: 1, fontSize: '0.8rem' }}
+                                        >
+                                            ✨ Alta Nueva
+                                        </button>
+                                    </div>
                                 </div>
                             </>
                         )}

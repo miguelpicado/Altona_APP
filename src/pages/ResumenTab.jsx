@@ -418,7 +418,7 @@ export default function ResumenTab({ sales, lastSale }) {
 
                     {/* Charts */}
                     {chartData && (
-                        <>
+                        <div className="charts-grid">
                             <div className="chart-container">
                                 <h4 className="chart-title">📊 Evolución de ventas</h4>
                                 <div className="chart-wrapper">
@@ -439,7 +439,7 @@ export default function ResumenTab({ sales, lastSale }) {
                                     <Bar data={chartData.empleadas} options={chartOptions} />
                                 </div>
                             </div>
-                        </>
+                        </div>
                     )}
                 </>
             )}
