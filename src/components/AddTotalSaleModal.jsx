@@ -445,12 +445,7 @@ export default function AddTotalSaleModal({
                         </div>
 
                         {/* Two Column Layout for Day Closure */}
-                        <div style={{
-                            display: closureType === 'day' ? 'grid' : 'block',
-                            gridTemplateColumns: closureType === 'day' ? '1fr 1fr' : '1fr',
-                            gap: '1.5rem',
-                            alignItems: 'start'
-                        }}>
+                        <div className={closureType === 'day' ? 'closure-grid' : ''}>
 
                             {/* LEFT COLUMN: Quantitative Data */}
                             <div>
