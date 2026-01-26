@@ -92,8 +92,13 @@ export default function AddTotalSaleModal({
         const lyVal = parseFloat(inputs.ly) || 0;
         const totalVenta = safeData.total.venta || 0;
 
-        const percentVsLy = lyVal > 0 ? ((totalVenta - lyVal) / lyVal) * 100 : 0;
-        const percentVsObj = objectiveVal > 0 ? ((totalVenta - objectiveVal) / objectiveVal) * 100 : 0;
+        // FIXED: Formulas changed from Variation to Attainment (% achievement)
+        const percentVsLy = lyVal > 0 ? (totalVenta / lyVal) * 100 : 0;
+        const percentVsObj = objectiveVal > 0 ? (totalVenta / objectiveVal) * 100 : 0;
+
+        // FIXED: Conversion calculated with user input Clients
+        const clientsVal = parseInt(inputs.clientes) || 0;
+        const conversionVal = clientsVal > 0 ? (totalTickets / clientsVal) * 100 : 0;
 
         const checkMark = '✔️'; // Unicode checkmark
 
@@ -192,7 +197,7 @@ export default function AddTotalSaleModal({
                 </tr>
                 <tr>
                     <td>Conversión (%)</td>
-                    <td>${formatPercentage(safeData.total.conversion || 0)}</td>
+                    <td>${formatPercentage(conversionVal)}</td>
                     <td></td>
                     <td></td>
                     <td></td>
