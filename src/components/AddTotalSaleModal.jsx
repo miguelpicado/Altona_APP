@@ -42,15 +42,57 @@ export default function AddTotalSaleModal({
         ? aggregatedData?.ingrid
         : aggregatedData?.marta;
 
-    // Update ventaReal when employee changes
+    // UPDATE MODE: Check if this employee already has a closure
+    const existingClosure = empData?.closeData;
+    const existingClosureId = empData?.closeId;
+
+    // Effect: Pre-fill form if existing closure found when employee changes
     useEffect(() => {
-        if (empData) {
+        if (existingClosure) {
+            // Restore state from existing closure
             setFormData(prev => ({
                 ...prev,
-                ventaReal: empData.venta?.toFixed(2) || ''
+                clientes: existingClosure.clientes || '',
+                horasTrabajadas: existingClosure.horasTrabajadas || '8',
+                ventaReal: empData.venta?.toFixed(2) || '', // Always use CURRENT calculated sale
+
+                // Restore metadata if available
+                objetivo: existingClosure.metadata?.objetivo || '',
+                ly: existingClosure.metadata?.ly || '',
+
+                lecturaRapida: {
+                    funcionado: existingClosure.metadata?.lectura?.funcionado || '',
+                    noFuncionado: existingClosure.metadata?.lectura?.noFuncionado || '',
+                    producto: existingClosure.metadata?.lectura?.producto || '',
+                    limpieza: existingClosure.metadata?.lectura?.limpieza || false,
+                    perfilado: existingClosure.metadata?.lectura?.perfilado || false,
+                    reposicion: existingClosure.metadata?.lectura?.reposicion || false
+                }
+            }));
+
+            // If checking an existing closure, likely want to see the report or editing it
+            // We start in edit mode essentially
+            setClosureType('day');
+        } else if (empData) {
+            // Reset to defaults if no closure
+            setFormData(prev => ({
+                ...prev,
+                clientes: '',
+                horasTrabajadas: '8',
+                ventaReal: empData.venta?.toFixed(2) || '',
+                objetivo: '',
+                ly: '',
+                lecturaRapida: {
+                    funcionado: '',
+                    noFuncionado: '',
+                    producto: '',
+                    limpieza: false,
+                    perfilado: false,
+                    reposicion: false
+                }
             }));
         }
-    }, [formData.empleada, empData]);
+    }, [formData.empleada, empData, existingClosure]); // Re-run when employee or data changes
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -347,7 +389,8 @@ export default function AddTotalSaleModal({
                 } : undefined
             };
 
-            await onSubmitClose(closeData);
+            // Call submit with ID for updating if exists
+            await onSubmitClose(closeData, existingClosureId);
 
             if (Math.abs(difference) > 0.01) {
                 await onSubmitAdjustment({

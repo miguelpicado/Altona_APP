@@ -237,6 +237,8 @@ export async function addTurnClose(data) {
             clientes: data.clientes,
             horasTrabajadas: data.horasTrabajadas,
             fecha: Timestamp.fromDate(new Date(data.fecha)),
+            // Save extra metadata if provided (for restoring state)
+            metadata: data.metadata || {},
             createdAt: Timestamp.now()
         });
         return docRef.id;

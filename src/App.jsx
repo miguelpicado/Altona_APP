@@ -77,8 +77,13 @@ function AppContent() {
     };
 
     // Handler for turn close
-    const handleTurnClose = async (data) => {
-        await addTurnClose(data);
+    const handleTurnClose = async (data, id = null) => {
+        if (id) {
+            const { updateSale } = await import('./services/salesService');
+            await updateSale(id, data);
+        } else {
+            await addTurnClose(data);
+        }
         await refresh();
     };
 

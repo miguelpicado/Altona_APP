@@ -158,6 +158,8 @@ export function aggregateDailyByEmployee(salesArray, empleada) {
         clientes,
         horasTrabajadas,
         hasClose: !!cierre,
+        closeId: cierre?.id, // ID for updates
+        closeData: cierre,   // Full record for pre-filling
         empleada
     };
 
